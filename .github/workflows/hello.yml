@@ -34,9 +34,9 @@ jobs:
         env:
           DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
           DTRACK_API_URL: "http://localhost:8080"
-          PROJECT_UUID: ${{ secrets.DTRACK_PROJECT_UUID }}
+         
         run: |
-          curl -X POST "$DTRACK_API_URL/api/v1/bom?project=$PROJECT_UUID" \
+          curl -X POST "$DTRACK_API_URL/api/v1/bom" \
             -H "X-Api-Key: $DTRACK_API_KEY" \
             -H "Content-Type: application/json" \
             --data-binary @bom.json
