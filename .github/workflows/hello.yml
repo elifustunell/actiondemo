@@ -1,17 +1,42 @@
-name: Hello
+name: React-TS SBOM Workflow
 
-on: 
+on:
+  push:
+    branches:
+      - main
   pull_request:
-   branches: 
-     - main
- 
-jobs: 
-  hello-job:
+    branches:
+      - main
+
+jobs:
+  generate-sbom:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Hello
-        run: echo "HELLO"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install CycloneDX BOM tool
+        run: npm install --save-dev @cyclonedx/bom
+
+      - name: Generate SBOM
+        run: npx cyclonedx-bom -o bom.json
+
+      - name: Upload SBOM to Dependency-Track
+        env:
+          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+          DTRACK_API_URL: "http://localhost:8080"
+          PROJECT_UUID: ${{ secrets.DTRACK_PROJECT_UUID }}
+        run: |
+          curl -X POST "$DTRACK_API_URL/api/v1/bom?project=$PROJECT_UUID" \
+            -H "X-Api-Key: $DTRACK_API_KEY" \
+            -H "Content-Type: application/json" \
+            --data-binary @bom.json
