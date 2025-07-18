@@ -1,0 +1,17 @@
+name: Hello
+
+on: 
+  pull_request:
+   branches: 
+     - main
+
+jobs: 
+  hello-job:
+    runs-on: self-hosted
+
+    step:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Hello
+        run: echo "HELLO"
